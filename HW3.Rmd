@@ -1,0 +1,233 @@
+---
+title: "Optimization-and-Statistical-Computing_HW3"
+output:
+  pdf_document:
+    latex_engine: xelatex
+date: '2023-04-21'
+---
+
+## Question1
+
+1.  Is f convex? Can you find the minimum value of f? (you don’t need to use a computer for this)
+
+f'(x) = (x+1)e^x
+
+
+f''(x) = (x+2)e^x 
+
+
+x < -2 : concave function
+
+
+x > -2 : convex function
+
+
+(x+1)e^x = 0,
+
+x+1 = 0,
+
+x = -1,
+
+min: f(-1) = -1/e
+
+
+2. To find the optimal value, use a bisection method. Specify your initial parameters (e.g. interval, tolerance)
+
+(a) Use an initial interval [−10, 10]
+
+
+
+tolerance is 0.001.
+
+
+```{r}
+
+
+eval_f <- function(x){
+  x*exp(x)
+}
+
+
+method_bisect <- function(fn, intval, tol = 0.001){
+  
+  ## Loop
+  
+  while(abs(intval[2] - intval[1]) > tol){
+    ## update intval
+    x_min <- (intval[1]*2/3)+(intval[2]*1/3)
+    x_max <- (intval[1]*1/3)+(intval[2]*2/3)
+    
+    if(fn(x_min) < fn(x_max)) {
+      intval <- c(intval[1], x_max)
+    } else {
+      intval <- c(x_min, intval[2])
+    }
+      }
+  
+  ## return
+  return(list(val_opt = mean(intval),
+              val_fun = fn(mean(intval))))
+}
+
+
+
+method_bisect(eval_f, 
+              c(-10, 10))
+
+
+```
+
+(b) Use an initial interval [−10, 0]
+
+```{r}
+method_bisect(eval_f, 
+              c(-10, 0))
+```
+(c) Do the algorithm converge well? Also, does it find the opitmal value? If not, explain why.
+
+
+
+
+I think it converges well
+
+
+
+3. To find the optimal value, use a gradient method. Specify your initial parameters (e.g. initial point, tolerance, learning rate)
+
+(a) Use an initial point x = 5
+
+
+
+learning rate is 0.001, learning rate is 0.001.
+
+```{r}
+eval_f1 <- function(x){
+  (x+1)*exp(x)
+}
+
+eta <- 0.001
+
+method_gd <- function(fn, fn_deriv, init_val, tol=0.01, learn_rate = eta){
+  
+  x_old <- init_val
+  
+  ##Loop
+  while(1){
+    ## update the current point
+    x_new <- x_old - learn_rate*fn_deriv(x_old)
+    
+    
+    ## check the convergence
+    if(abs(fn(x_new) - fn(x_old)) < tol){
+      break
+    }
+    
+    x_old <- x_new
+  }
+  
+  ##return
+  return(list(val_opt = x_new,
+              val_fun = fn(x_new)))
+}
+
+
+method_gd(fn = eval_f, 
+          fn_deriv = eval_f1, 
+          init_val = 5, 
+          tol = 0.001)
+```
+(b) Use an initial point x = −5
+
+```{r}
+method_gd(fn = eval_f, 
+          fn_deriv = eval_f1, 
+          init_val = -5, 
+          tol = 0.001)
+
+```
+(c) It doesn't seem to converge well. By comparing the results of a and b, it can be observed that the output values differ depending on the initial value setting. Therefore, since the initial value and learning rate have a significant impact on the output values, it seems that the algorithm did not output appropriate values.
+
+
+
+## Question 2
+In this case, we consider g(x) = x(x+1)(x+2)(x−3). Answer the questions above for g.
+1.  Is g convex? Can you find the minimum value of g? (you don’t need to use a computer for this)
+
+
+x < -sqrt(7/6) : convex function
+
+
+
+-sqrt(7/6) < x < sqrt(7/6) : concave function
+
+
+
+sqrt(7/6) < x : convex function.
+
+
+
+
+Furthermore, the minimum value is expected to occur at the range of -2 < x < -1 or 0 < x < 3, and by checking with arbitrary values, it can be seen that the function attains the minimum value within the range of 0 < x < 3.
+
+
+
+2. To find the optimal value, use a bisection method. Specify your initial parameters (e.g. interval, tolerance)
+tolerance is 0.001
+(a)  Use an initial interval [−10, 10]
+```{r}
+eval_f <- function(x){
+  x*(x+1)*(x+2)*(x-3)
+}
+
+method_bisect(eval_f, 
+              c(-10, 10))
+
+
+```
+
+(b) Use an initial interval [−10, 0]
+
+```{r}
+method_bisect(eval_f, 
+              c(-10, 0))
+```
+
+(c)In terms of setting the interval, the first interval includes the interval where the minimum value exists, but the second interval does not include the interval where the minimum value exists. Therefore, it seems that the algorithm could not find the optimal value properly.
+
+
+
+3. To find the optimal value, use a gradient method. Specify your initial parameters (e.g. initial point, tolerance, learning rate)
+
+tolerance and learning rate is 0.001
+
+(a) Use an initial point x = 5
+```{r}
+
+eval_f <- function(x){
+  x*(x+1)*(x+2)*(x-3)
+}
+eval_f1 <- function(x){
+  4*x^3 -14*x-6
+}
+
+eta <- 0.001
+
+method_gd(fn = eval_f, 
+          fn_deriv = eval_f1, 
+          init_val = 5, 
+          tol = 0.001)
+
+```
+(b) Use an initial point x = −5
+
+```{r}
+method_gd(fn = eval_f, 
+          fn_deriv = eval_f1, 
+          init_val = -5, 
+          tol = 0.001)
+```
+(c) Do the algorithm converge well? Also, does it find the opitmal value? If not, explain why.
+
+
+
+When setting the initial value, in the first case, it was set close to the interval where the function has the minimum value, and it was possible to obtain a similar result. However, in the second case, it was set close to a local minimum value, not the global minimum value, resulting in finding the local minimum value instead.
